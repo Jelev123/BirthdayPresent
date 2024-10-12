@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.16" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BirthdayPresent.Infrastructure\BirthdayPresent.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
