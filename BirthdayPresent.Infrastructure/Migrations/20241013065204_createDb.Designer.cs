@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BirthdayPresent.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241012165121_createDb")]
+    [Migration("20241013065204_createDb")]
     partial class createDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,8 +124,8 @@ namespace BirthdayPresent.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VotingYear")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("VotingYear")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

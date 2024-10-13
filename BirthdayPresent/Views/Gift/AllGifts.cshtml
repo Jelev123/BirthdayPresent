@@ -1,0 +1,43 @@
+﻿@using BirthdayPresent.Core.ViewModels.Gift;
+@model IEnumerable<AllGiftsViewModel>
+
+
+@{
+    ViewData["Title"] = "All gifts";
+}
+
+
+<h2>All Gifts</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Gift ID</th>
+            <th>Gift Name</th>
+            <th>Likes</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var gift in Model)
+            {
+                <tr>
+                    <td>@gift.GiftId</td>
+                    <td>@gift.GiftName</td>
+                    <td id="voted-@gift.GiftId">Vote: @gift.VoteCount</td>
+                    <td>
+                        <a style="color: black" class="btn btn-success" asp-action="GiftById" asp-controller="Gift" asp-route-id="@gift.GiftId">Gift Details</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4">No gifts available.</td>
+            </tr>
+        }
+    </tbody>
+</table>

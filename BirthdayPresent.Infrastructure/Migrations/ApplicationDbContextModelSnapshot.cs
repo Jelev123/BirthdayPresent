@@ -122,8 +122,8 @@ namespace BirthdayPresent.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VotingYear")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("VotingYear")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

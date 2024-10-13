@@ -1,8 +1,11 @@
 using BirthdayPresent.ConfigExtensions;
+using BirthdayPresent.Infrastructure.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDatabase(builder.Configuration);
+builder.Services.RegisterServices();
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var app = builder.Build();
@@ -19,6 +22,8 @@ else
     app.UseHsts();
 }
 
+DbSeeder.EnsureDatabaseSeeded(app.Services).GetAwaiter().GetResult();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -28,8 +33,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+           name: "Area",
+           pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+           name: "default",
+           pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
 app.Run();

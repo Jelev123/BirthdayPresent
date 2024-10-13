@@ -1,0 +1,58 @@
+﻿@using BirthdayPresent.Core.ViewModels.Employee;
+@model IEnumerable<AllEmployeesViewModel>
+
+
+@{
+    ViewData["Title"] = "All Employyes";
+}
+
+
+<h2>All Employees</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee Name</th>
+            <th>Employee Date of Birth</th>
+            <th>Is has a birthDay soon</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var employee in Model)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>@employee.DateOfBirth</td>
+                    
+                        @if (employee.IsHasABirthDay)
+                        {
+                        <td>
+                            Yes !!
+                        </td>
+
+                        }
+                        @if(!employee.IsHasABirthDay)
+                        {
+                        <td>
+                            Not yet
+                        </td>
+                        }
+                    <td>
+                        @if (employee.IsHasABirthDay)
+                        {
+                            <a style="color: black" class="btn btn-success" asp-controller="VoteSession" asp-action="StartSession" asp-route-id="@employee.Id">Vote for gift</a>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">No employees available.</td>
+            </tr>
+        }
+    </tbody>
+</table>

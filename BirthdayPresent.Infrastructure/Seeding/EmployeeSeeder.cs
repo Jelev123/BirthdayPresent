@@ -13,7 +13,7 @@
             {
                 FirstName = "Pesho",
                 LastName =  "Petrov",
-                UserName = "Pesho123",
+                UserName = "Pesho",
                 Email = "peter1@abv.bg",
                 NormalizedEmail = "peter1@abv.bg".ToUpper(),
                 EmailConfirmed = true,
@@ -27,7 +27,7 @@
             {
                 FirstName = "Todor",
                 LastName = "Petrov",
-                UserName = "Todor123",
+                UserName = "Todor",
                 Email = "todor1@abv.bg",
                 NormalizedEmail = "todor1@abv.bg".ToUpper(),
                 EmailConfirmed = true,
@@ -41,11 +41,39 @@
             {
                 FirstName = "Marko",
                 LastName = "Petrov",
-                UserName = "Marko123",
+                UserName = "Marko",
                 Email = "marko@abv.bg",
                 NormalizedEmail = "marko@abv.bg".ToUpper(),
                 EmailConfirmed = true,
                 NormalizedUserName = "Marko".ToUpper(),
+                SecurityStamp = Guid.NewGuid().ToString(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                DateOfBirth = DateTime.UtcNow,
+
+            }; var employee4 = new User()
+            {
+                FirstName = "Misho",
+                LastName = "Todorov",
+                UserName = "Misho",
+                Email = "misho@abv.bg",
+                NormalizedEmail = "misho@abv.bg".ToUpper(),
+                EmailConfirmed = true,
+                NormalizedUserName = "Misho".ToUpper(),
+                SecurityStamp = Guid.NewGuid().ToString(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                DateOfBirth = DateTime.UtcNow,
+
+            }; var employee5 = new User()
+            {
+                FirstName = "Svetlio",
+                LastName = "Ivanov",
+                UserName = "Svetlio",
+                Email = "svetlio@abv.bg",
+                NormalizedEmail = "svetlio@abv.bg".ToUpper(),
+                EmailConfirmed = true,
+                NormalizedUserName = "Svetlio".ToUpper(),
                 SecurityStamp = Guid.NewGuid().ToString(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -57,6 +85,8 @@
             await userManager.CreateAsync(employee1, "Asd123!!");
             await userManager.CreateAsync(employee2, "Asd123!!");
             await userManager.CreateAsync(employee3, "Asd123!!");
+            await userManager.CreateAsync(employee4, "Asd123!!");
+            await userManager.CreateAsync(employee5, "Asd123!!");
             await data.SaveChangesAsync();
         }
     }

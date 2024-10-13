@@ -1,0 +1,16 @@
+﻿@using BirthdayPresent.Core.ViewModels.Employee;
+@model EmployeeViewModel
+
+<h2>Start a Voting Session for @Model.Name's Birthday</h2>
+
+<form asp-action="StartSession" asp-controller="VoteSession" method="post">
+    <input type="hidden" name="birthdayEmployeeId" value="@Model.EmployeeId" />
+    <button type="submit" class="btn btn-primary">Start Voting Session</button>
+</form>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}

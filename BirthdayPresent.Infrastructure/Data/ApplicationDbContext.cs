@@ -12,6 +12,8 @@
         {
         }
 
+        public DbSet<User> Users { get; set; }
+
         public DbSet<Vote> Votes { get; set; }
 
         public DbSet<Gift> Gifts { get; set; }

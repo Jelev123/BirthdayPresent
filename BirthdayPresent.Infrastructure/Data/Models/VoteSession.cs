@@ -21,7 +21,7 @@
 
         public DateTime? EndDate { get; set; }
 
-        public int VotingYear { get; set; }
+        public DateTime VotingYear { get; set; }
 
         public string Status { get; set; } = "Active";
 

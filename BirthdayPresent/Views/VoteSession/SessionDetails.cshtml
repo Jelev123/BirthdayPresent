@@ -1,0 +1,11 @@
+﻿@using BirthdayPresent.Core.ViewModels.VoteSession;
+@model VoteSessionViewModel
+
+<h2>Vote Session Details for @Model.BirthdayEmployeeName's Birthday</h2>
+
+<p><strong>Initiator:</strong> @Model.InitiatorName</p>
+<p><strong>Start Date:</strong> @Model.StartDate.ToString("yyyy-MM-dd")</p>
+<p><strong>Upcoming Birthday:</strong> @Model.VotingYear.ToString("yyyy-MM-dd")</p>
+<p><strong>Status:</strong> @Model.Status</p>
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Go Back</a>
