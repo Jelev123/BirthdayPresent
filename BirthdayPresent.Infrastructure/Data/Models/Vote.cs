@@ -4,9 +4,9 @@
 
     public class Vote : BaseEntity
     {
-        public string VoterId { get; set; }
+        public int VoterId { get; set; }
 
-        public User Voter { get; set; }
+        public Employee Voter { get; set; }
 
         public int GiftId { get; set; }
 

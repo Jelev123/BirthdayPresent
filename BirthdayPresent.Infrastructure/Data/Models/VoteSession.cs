@@ -9,21 +9,23 @@
             this.Votes = new HashSet<Vote>();
         }
 
-        public string InitiatorId { get; set; }
+        public int InitiatorId { get; set; }
 
-        public User Initiator { get; set; }
+        public Employee Initiator { get; set; }
 
-        public string BirthdayEmployeeId { get; set; }
+        public int BirthdayEmployeeId { get; set; }
 
-        public User BirthdayEmployee { get; set; }
+        public Employee BirthdayEmployee { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
 
-        public DateTime VotingYear { get; set; }
+        public int VotingYear { get; set; }
 
-        public string Status { get; set; } = "Active";
+        public int StatusId { get; set; }
+
+        public SessionStatus Status { get; set; }
 
         public ICollection<Vote> Votes { get; set; }
     }

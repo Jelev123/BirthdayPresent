@@ -3,9 +3,9 @@
     using BirthdayPresent.Infrastructure.Data;
     using BirthdayPresent.Infrastructure.Data.Models;
 
-    public class GiftSeeder
+    internal static class GiftsSeeder
     {
-        public static async Task SeedDataAsync(ApplicationDbContext data)
+        internal static async Task SeedAsync(ApplicationDbContext data)
         {
             var gift = new List<Gift>()
             {

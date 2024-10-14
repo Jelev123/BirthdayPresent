@@ -4,9 +4,9 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class EmployeeConfig : IEntityTypeConfiguration<User>
+    public class EmployeeConfig : IEntityTypeConfiguration<Employee>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<Employee> builder)
         {
              builder
             .HasIndex(e => e.UserName)

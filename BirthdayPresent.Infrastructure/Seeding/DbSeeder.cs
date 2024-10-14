@@ -6,7 +6,7 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
 
-    public class DbSeeder
+    public static class DbSeeder
     {
         public static async Task EnsureDatabaseSeeded(IServiceProvider serviceProvider)
         {
@@ -18,29 +18,33 @@
             using (var scope = serviceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Employee>>();
 
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
                 await MigrateDatabaseAsync(context);
 
-                if (!context.Gifts.Any() && !context.Users.Any())
+                if (!await context.Users.AnyAsync())
                 {
-                    await SeedDatabaseAsync(context, userManager);
+                    await SeedDatabaseAsync(roleManager, userManager, context);
                 }
             }
         }
 
         private static async Task MigrateDatabaseAsync(ApplicationDbContext context)
         {
-            if (await context.Database.EnsureCreatedAsync())
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
             {
                 await context.Database.MigrateAsync();
             }
         }
 
-        private static async Task SeedDatabaseAsync(ApplicationDbContext context, UserManager<User> userManager)
+        private static async Task SeedDatabaseAsync(RoleManager<IdentityRole<int>> roleManager, UserManager<Employee> userManager, ApplicationDbContext context)
         {
-            await GiftSeeder.SeedDataAsync(context);
-            await EmployeeSeeder.SeedDataAsync(context, userManager);
+            await RolesSeeder.SeedAsync(roleManager);
+            await EmployeesSeeder.SeedAsync(userManager);
+            await GiftsSeeder.SeedAsync(context);
+            await SessionStatusesSeeder.SeedAsync(context);
         }
     }
 }

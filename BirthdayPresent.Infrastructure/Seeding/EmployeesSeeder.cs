@@ -4,12 +4,11 @@
     using BirthdayPresent.Infrastructure.Data.Models;
     using Microsoft.AspNetCore.Identity;
 
-    public class EmployeeSeeder
+    internal static class EmployeesSeeder
     {
-        public static async Task SeedDataAsync(ApplicationDbContext data, UserManager<User> userManager)
+        internal static async Task SeedAsync(UserManager<Employee> userManager)
         {
-
-            var employee1 = new User()
+            var employee1 = new Employee()
             {
                 FirstName = "Pesho",
                 LastName =  "Petrov",
@@ -23,7 +22,7 @@
                 UpdatedAt = DateTime.UtcNow,
                 DateOfBirth = DateTime.UtcNow,
             };
-            var employee2 = new User()
+            var employee2 = new Employee()
             {
                 FirstName = "Todor",
                 LastName = "Petrov",
@@ -37,7 +36,7 @@
                 UpdatedAt = DateTime.UtcNow,
                 DateOfBirth = DateTime.UtcNow,
             };
-            var employee3 = new User()
+            var employee3 = new Employee()
             {
                 FirstName = "Marko",
                 LastName = "Petrov",
@@ -51,7 +50,7 @@
                 UpdatedAt = DateTime.UtcNow,
                 DateOfBirth = DateTime.UtcNow,
 
-            }; var employee4 = new User()
+            }; var employee4 = new Employee()
             {
                 FirstName = "Misho",
                 LastName = "Todorov",
@@ -65,7 +64,7 @@
                 UpdatedAt = DateTime.UtcNow,
                 DateOfBirth = DateTime.UtcNow,
 
-            }; var employee5 = new User()
+            }; var employee5 = new Employee()
             {
                 FirstName = "Svetlio",
                 LastName = "Ivanov",
@@ -83,11 +82,13 @@
 
 
             await userManager.CreateAsync(employee1, "Asd123!!");
+            await userManager.AddToRoleAsync(employee1, "regular");
+
             await userManager.CreateAsync(employee2, "Asd123!!");
+            await userManager.AddToRoleAsync(employee1, "regular");
+
             await userManager.CreateAsync(employee3, "Asd123!!");
-            await userManager.CreateAsync(employee4, "Asd123!!");
-            await userManager.CreateAsync(employee5, "Asd123!!");
-            await data.SaveChangesAsync();
+            await userManager.AddToRoleAsync(employee1, "regular");
         }
     }
 }

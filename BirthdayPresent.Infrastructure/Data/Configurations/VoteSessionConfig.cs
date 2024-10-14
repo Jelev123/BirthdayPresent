@@ -9,19 +9,22 @@
         public void Configure(EntityTypeBuilder<VoteSession> builder)
         {
             builder.HasIndex(vs => new { vs.BirthdayEmployeeId, vs.VotingYear })
-             .IsUnique();
+                    .IsUnique();
 
-            builder
-                 .HasOne(vs => vs.Initiator)
-                 .WithMany(e => e.CreatedVoteSessions)
-                 .HasForeignKey(vs => vs.InitiatorId)
-                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(vs => vs.Initiator)
+                   .WithMany(e => e.CreatedVoteSessions)
+                   .HasForeignKey(vs => vs.InitiatorId)
+                   .OnDelete(DeleteBehavior.Restrict);
 
-            builder
-                .HasOne(vs => vs.BirthdayEmployee)
-                .WithMany()
-                .HasForeignKey(vs => vs.BirthdayEmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(vs => vs.BirthdayEmployee)
+                   .WithMany()
+                   .HasForeignKey(vs => vs.BirthdayEmployeeId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(vs => vs.Status)
+                   .WithMany(s => s.VoteSessions)
+                   .HasForeignKey(vs => vs.StatusId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
