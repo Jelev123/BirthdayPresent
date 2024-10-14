@@ -1,108 +1,155 @@
 ﻿namespace BirthdayPresent.Core.Services.VoteSession
 {
+    using BirthdayPresent.Core.Enums;
     using BirthdayPresent.Core.Interfaces.VoteSession;
+    using BirthdayPresent.Core.Services.Base;
     using BirthdayPresent.Core.ViewModels.VoteSession;
-    using BirthdayPresent.Infrastructure.Data;
+    using Infrastructure.Data;
+    using Infrastructure.Data.Models;
     using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
-    public class VoteSessionService : IVoteSessionService
+    public class VoteSessionService : BaseService<VoteSession>, IVoteSessionService
     {
-        private readonly ApplicationDbContext data;
-
-        public VoteSessionService(ApplicationDbContext data)
+        public VoteSessionService(ApplicationDbContext dbContext) : base(dbContext)
         {
-            this.data = data;
+
         }
 
-        public async Task<VoteSessionViewModel> GetSessionDetailsAsync(int sessionId)
+        public async Task<VoteSessionViewModel> CreateVoteSessionAsync(int initiatorId, int birthdayEmployeeId, CancellationToken _cancellationToken)
         {
-            return await data.VoteSessions.Where(s => s.Id == sessionId)
-                .Select(s => new VoteSessionViewModel()
-                {
-                    BirthdayEmployeeId = s.BirthdayEmployeeId,
-                    BirthdayEmployeeName = s.BirthdayEmployee.FirstName + " " + s.BirthdayEmployee.LastName,
-                    InitiatorId = s.InitiatorId,
-                    InitiatorName = s.Initiator.FirstName + " " + s.Initiator.LastName,
-                    CreatedAt = s.CreatedAt,
-                    Status = s.Status,
-                    VotingYear = s.VotingYear,
-                    StartDate = s.StartDate,
-                    EndDate = s.EndDate,
-                    UpdatedAt = s.UpdatedAt,
-                }).FirstOrDefaultAsync();
-        }
-
-        public async Task<VoteSessionViewModel> StartSession(string initiatorId, string birthdayEmployeeId)
-        {
-            // Step 1: Get the birthday employee's upcoming birthday date
-            var birthdayEmployee = await data.Users.FirstOrDefaultAsync(u => u.Id == birthdayEmployeeId);
-            if (birthdayEmployee == null)
+            if (initiatorId == birthdayEmployeeId)
             {
-                throw new Exception("Birthday employee not found.");
+                throw new Exception("Initiator and birthday employee cannot be the same person");
             }
 
-            // Step 2: Calculate the next birthday (or you can choose any other DateTime as the VotingYear)
-            var upcomingBirthday = GetNextBirthday(birthdayEmployee.DateOfBirth);
+            // Check if there's already an active session for this employee
+            var existingActiveSession = await _data.VoteSessions
+                .FirstOrDefaultAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId
+                                           && vs.StatusId == (int)VoteSessionStatusEnum.Active,
+                                           _cancellationToken);
 
-            // Step 3: Check if there is already an active voting session for the same birthday employee
-            bool isActiveSessionExists = await data.VoteSessions
-                .AnyAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId && vs.Status == "Active");
-
-            if (isActiveSessionExists)
+            if (existingActiveSession != null)
             {
-                throw new InvalidOperationException("An active voting session already exists for this birthday employee.");
+                throw new Exception("An active session already exists for this employee.");
             }
 
-            // Step 4: Check if there is a voting session for the same birthday year
-            bool isSessionForSameYearExists = await data.VoteSessions
-                .AnyAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId && vs.VotingYear.Year == upcomingBirthday.Year);
+            // Check if a session has already been created for this employee in the current year
+            var existingYearlySession = await _data.VoteSessions
+                .FirstOrDefaultAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId
+                                           && vs.VotingYear == DateTime.UtcNow.Year,
+                                           _cancellationToken);
 
-            if (isSessionForSameYearExists)
+            if (existingYearlySession != null)
             {
-                throw new InvalidOperationException("A voting session already exists for this birthday employee for the current year.");
+                throw new Exception("A session has already been created for this employee this year.");
             }
 
-            // Step 5: Create a new voting session
-            var newSession = new Infrastructure.Data.Models.VoteSession
+            var birthdayEmployee = await this.FindIdByIdOrDefaultAsync<Employee>(birthdayEmployeeId, _cancellationToken);
+
+            var activeStatus = await _data.SessionStatuses
+                .FirstOrDefaultAsync(s => s.Id == (int)VoteSessionStatusEnum.Active, _cancellationToken);
+
+            if (activeStatus == null)
+            {
+                throw new Exception("The active status could not be found in the database.");
+            }
+
+            var voteSession = new VoteSession
             {
                 InitiatorId = initiatorId,
-                BirthdayEmployeeId = birthdayEmployeeId,
+                StatusId = activeStatus.Id,
+                Status = activeStatus,
+                VotingYear = DateTime.UtcNow.Year,
                 StartDate = DateTime.UtcNow,
-                VotingYear = upcomingBirthday, // VotingYear is now the upcoming birthday
-                Status = "Active"
+                EndDate = birthdayEmployee.DateOfBirth.Date,
+                BirthdayEmployeeId = birthdayEmployeeId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
-            // Step 6: Add the new session to the database and save changes
-            await data.VoteSessions.AddAsync(newSession);
-            await data.SaveChangesAsync();
+            await this.CreateEntityAsync(voteSession, _cancellationToken);
 
-            // Step 7: Map to VoteSessionViewModel (or you can return the VoteSession entity if preferred)
             var sessionViewModel = new VoteSessionViewModel
             {
-                Id = newSession.Id,
-                InitiatorId = newSession.InitiatorId,
-                BirthdayEmployeeId = newSession.BirthdayEmployeeId,
-                StartDate = newSession.StartDate,
-                VotingYear = newSession.VotingYear,
-                Status = newSession.Status
+                Id = voteSession.Id,
+                InitiatorId = voteSession.InitiatorId,
+                BirthdayEmployeeId = voteSession.BirthdayEmployeeId,
+                StartDate = voteSession.StartDate,
+                VotingYear = voteSession.VotingYear,
+                Status = voteSession.Status.Status
             };
 
             return sessionViewModel;
         }
 
-        private DateTime GetNextBirthday(DateTime dateOfBirth)
-        {
-            var now = DateTime.UtcNow;
-            var nextBirthday = new DateTime(now.Year, dateOfBirth.Month, dateOfBirth.Day);
 
-            // If the next birthday in the current year has already passed, set it to next year
-            if (nextBirthday < now)
+        public async Task CloseVoteSessionAsync(int initiatorId, int voteSessionId, CancellationToken _cancellationToken)
+        {
+            var voteSession = await this.GetEntityByIdAsync(voteSessionId, _cancellationToken);
+
+            if (voteSession.InitiatorId != initiatorId)
             {
-                nextBirthday = nextBirthday.AddYears(1);
+                throw new Exception("Only the initiator can close the vote session");
             }
 
-            return nextBirthday;
+            voteSession.StatusId = (int)VoteSessionStatusEnum.Closed;
+
+            await this.SaveModificationAsync(voteSession, _cancellationToken);
+        }
+
+        public async Task<VoteSessionViewModel> GetSessionDetailsAsync(int sessionId, int currentUserId)
+        {
+            return await _data.VoteSessions.Where(s => s.Id == sessionId)
+                 .Select(s => new VoteSessionViewModel()
+                 {
+                     Id = sessionId,
+                     BirthdayEmployeeId = s.BirthdayEmployeeId,
+                     BirthdayEmployeeName = s.BirthdayEmployee.FirstName + " " + s.BirthdayEmployee.LastName,
+                     InitiatorId = s.InitiatorId,
+                     InitiatorName = s.Initiator.FirstName + " " + s.Initiator.LastName,
+                     CreatedAt = s.CreatedAt,
+                     Status = s.Status.Status,
+                     VotingYear = s.VotingYear,
+                     StartDate = s.StartDate,
+                     EndDate = s.EndDate,
+                     UpdatedAt = s.UpdatedAt,
+                     CurrentUserId = currentUserId,
+                 }).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<AllSessionsViewModel>> GetAllActiveSessionsAsync(int currentUserId)
+        {
+            return await _data.VoteSessions
+                 .Where(s => s.StatusId == (int)VoteSessionStatusEnum.Active
+                             && s.BirthdayEmployeeId != currentUserId)
+                 .Select(s => new AllSessionsViewModel
+                 {
+                     Id = s.Id,
+                     BirthdaysEmployeerName = s.BirthdayEmployee.FirstName + " " + s.BirthdayEmployee.LastName,
+                     CreatedAt = s.CreatedAt,
+                     FinishDate = s.EndDate,
+                     UpdatedAt = s.UpdatedAt
+                 })
+                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AllSessionsViewModel>> GetAllClosedSessionsAsync(int currentUserId)
+        {
+            return await _data.VoteSessions
+                 .Where(s => s.StatusId == (int)VoteSessionStatusEnum.Active
+                             && s.BirthdayEmployeeId != currentUserId)
+                 .Select(s => new AllSessionsViewModel
+                 {
+                     Id = s.Id,
+                     BirthdaysEmployeerName = s.BirthdayEmployee.FirstName + " " + s.BirthdayEmployee.LastName,
+                     CreatedAt = s.CreatedAt,
+                     FinishDate = s.EndDate,
+                     UpdatedAt = s.UpdatedAt
+                 })
+                 .ToListAsync();
         }
     }
 }

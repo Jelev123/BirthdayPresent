@@ -3,19 +3,22 @@
     public class VoteSessionViewModel
     {
         public int Id { get; set; }
-        public string InitiatorId { get; set; }
+
+        public int InitiatorId { get; set; }
+
+        public int CurrentUserId { get; set; }
 
         public string InitiatorName { get; set; }
 
-        public string BirthdayEmployeeId { get; set; }
+        public int BirthdayEmployeeId { get; set; }
 
         public string BirthdayEmployeeName { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
 
-        public DateTime VotingYear { get; set; }
+        public int VotingYear { get; set; }
 
         public string Status { get; set; }
 
