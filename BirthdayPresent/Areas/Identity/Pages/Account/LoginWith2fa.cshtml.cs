@@ -12,13 +12,13 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
 {
     public class LoginWith2faModel : PageModel
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<Employee> _signInManager;
+        private readonly UserManager<Employee> _userManager;
         private readonly ILogger<LoginWith2faModel> _logger;
 
         public LoginWith2faModel(
-            SignInManager<User> signInManager,
-            UserManager<User> userManager,
+            SignInManager<Employee> signInManager,
+            UserManager<Employee> userManager,
             ILogger<LoginWith2faModel> logger)
         {
             _signInManager = signInManager;

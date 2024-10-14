@@ -18,13 +18,13 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account.Manage
 {
     public class EmailModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<Employee> _userManager;
+        private readonly SignInManager<Employee> _signInManager;
         private readonly IEmailSender _emailSender;
 
         public EmailModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<Employee> userManager,
+            SignInManager<Employee> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -74,7 +74,7 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account.Manage
             public string NewEmail { get; set; }
         }
 
-        private async Task LoadAsync(User user)
+        private async Task LoadAsync(Employee user)
         {
             var email = await _userManager.GetEmailAsync(user);
             Email = email;

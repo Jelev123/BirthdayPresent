@@ -18,10 +18,10 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterConfirmationModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Employee> _userManager;
         private readonly IEmailSender _sender;
 
-        public RegisterConfirmationModel(UserManager<User> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<Employee> userManager, IEmailSender sender)
         {
             _userManager = userManager;
             _sender = sender;

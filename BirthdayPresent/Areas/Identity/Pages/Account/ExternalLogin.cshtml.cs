@@ -19,17 +19,17 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly IUserEmailStore<User> _emailStore;
+        private readonly SignInManager<Employee> _signInManager;
+        private readonly UserManager<Employee> _userManager;
+        private readonly IUserStore<Employee> _userStore;
+        private readonly IUserEmailStore<Employee> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
-            SignInManager<User> signInManager,
-            UserManager<User> userManager,
-            IUserStore<User> userStore,
+            SignInManager<Employee> signInManager,
+            UserManager<Employee> userManager,
+            IUserStore<Employee> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
@@ -193,11 +193,11 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private User CreateUser()
+        private Employee CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<User>();
+                return Activator.CreateInstance<Employee>();
             }
             catch
             {
@@ -207,13 +207,13 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
             }
         }
 
-        private IUserEmailStore<User> GetEmailStore()
+        private IUserEmailStore<Employee> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<User>)_userStore;
+            return (IUserEmailStore<Employee>)_userStore;
         }
     }
 }
