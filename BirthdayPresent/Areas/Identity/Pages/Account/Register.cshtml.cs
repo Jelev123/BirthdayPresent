@@ -86,6 +86,10 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
             [Display(Name = "Last Name")]
             public string LastName { get; set; }
 
+            [Required]
+            [Display(Name = "Birth date")]
+            public DateTime BirthDate { get; set; }
+
 
             [Required]
             [EmailAddress]
@@ -175,8 +179,8 @@ namespace BirthdayPresent.Areas.Identity.Pages.Account
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
                 user.UserName = Input.FirstName;
-                user.DateOfBirth = DateTime.UtcNow;
                 user.CreatedAt = DateTime.UtcNow;
+                user.DateOfBirth = Input.BirthDate;
                 return user;
             }
             catch

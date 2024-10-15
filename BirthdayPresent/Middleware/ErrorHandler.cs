@@ -1,5 +1,6 @@
 ﻿namespace BirthdayPresent.Middleware
 {
+    using BirthdayPresent.Core.Handlers;
     using BirthdayPresent.Models;
     using System.Net;
     using System.Text.Json;
@@ -17,7 +18,7 @@
         {
             try
             {
-                await this.next(context);
+                await next(context);
             }
             catch (Exception error)
             {
@@ -29,6 +30,8 @@
                     KeyNotFoundException => (int)HttpStatusCode.NotFound,
                     UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
                     NullReferenceException => (int)HttpStatusCode.BadRequest,
+                    ResourceAlreadyExistsException => (int)HttpStatusCode.BadRequest,
+                    ResourceNotFoundException => (int)HttpStatusCode.NotFound,
                     _ => (int)HttpStatusCode.InternalServerError,
                 };
                 var result = JsonSerializer.Serialize(new ErrorViewModel { RequestId = error?.Message });
