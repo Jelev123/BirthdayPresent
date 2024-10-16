@@ -1,11 +1,9 @@
 ﻿@using BirthdayPresent.Core.ViewModels.Employee;
 @model IEnumerable<AllEmployeesViewModel>
 
-
 @{
-    ViewData["Title"] = "All Employyes";
+    ViewData["Title"] = "All Employees";
 }
-
 
 <h2>All Employees</h2>
 
@@ -14,7 +12,7 @@
         <tr>
             <th>Employee Name</th>
             <th>Employee Date of Birth</th>
-            <th>Is has a birthDay soon</th>
+            <th>Actions</th> <!-- Add a column for the actions -->
         </tr>
     </thead>
     <tbody>
@@ -23,26 +21,29 @@
             foreach (var employee in Model)
             {
                 <tr>
-                    <td>@employee.Name</td>
+                    <td>@employee.FirstName @employee.LastName</td>
                     <td>@employee.DateOfBirth</td>
-                    
-                        @if (employee.IsHasABirthDay)
-                        {
-                        <td>
-                            Yes !!
-                        </td>
-
-                        }
-                        @if(!employee.IsHasABirthDay)
-                        {
-                        <td>
-                            Not yet
-                        </td>
-                        }
                     <td>
-                        @if (employee.IsHasABirthDay)
+                        @if (employee.DateOfBirth > DateTime.UtcNow)
                         {
-                            <a style="color: black" class="btn btn-success" asp-controller="VoteSession" asp-action="StartSession" asp-route-id="@employee.Id">Vote for gift</a>
+                            @if (!employee.HasActiveSessionForYear && !employee.HasActiveGlobalSession)
+                            {
+                                <a class="btn btn-primary" asp-action="CreateVoteSession" asp-controller="VoteSession" asp-route-birthdayEmployeeId="@employee.Id">
+                                    Create Birthday Vote Session
+                                </a>
+                            }
+                            else if (employee.HasActiveGlobalSession)
+                            {
+                                <span class="text-muted">An active session is already in progress</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Session created</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Birth day passed</span>
                         }
                     </td>
                 </tr>
@@ -56,3 +57,14 @@
         }
     </tbody>
 </table>
+
+
+
+
+<script>
+    function createSession(employeeId) {
+        // Add your logic here for handling the session creation
+        alert("Creating a birthday session for employee ID: " + employeeId);
+        // Optionally, make an AJAX call to the server to create the session
+    }
+</script>

@@ -12,21 +12,36 @@
                 new Gift()
                 {
                     Name = "Head phones",
-                    Description = "Best quality",
+                    Description = "Model: Bose. Best quality",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                 },
                 new Gift()
                 {
                     Name = "Keyboard",
-                    Description = "Best quality",
+                    Description = "Model: Razer Ornata V3",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                 },
                 new Gift()
                 {
                     Name = "Mouse",
-                    Description = "Best quality",
+                    Description = "Model: Viper Ultimate",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                },
+
+                 new Gift()
+                {
+                    Name = "Mouse",
+                    Description = "Model: Logitech Mx Master 3",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                },
+                  new Gift()
+                {
+                    Name = "Chair",
+                    Description = "Model: Chair Pro",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                 },

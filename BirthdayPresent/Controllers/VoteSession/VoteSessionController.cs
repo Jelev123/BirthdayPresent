@@ -1,56 +1,63 @@
 ﻿namespace BirthdayPresent.Controllers.VoteSession
 {
+    using BirthdayPresent.Controllers.Base;
     using BirthdayPresent.Core.Interfaces.VoteSession;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using System.Security.Claims;
 
-    public class VoteSessionController : Controller
+    public class VoteSessionController : BaseController
     {
         private readonly IVoteSessionService voteSessionService;
-        private string CurrentUserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                                ?? throw new UnauthorizedAccessException();
 
         public VoteSessionController(IVoteSessionService voteSessionService)
         {
             this.voteSessionService = voteSessionService;
         }
 
-        public async Task<IActionResult> StartSession(string birthdayEmployeeId)
+        [Authorize]
+        public async Task<IActionResult> CreateVoteSession(int birthdayEmployeeId)
         {
-            var initiatorId = CurrentUserId;
-
-            birthdayEmployeeId = "3c8fc12a-2f51-4bc3-a48a-69dd08a90722";
-            try
-            {
-                var session = await voteSessionService.StartSession(initiatorId, birthdayEmployeeId);
-
-                // Redirect to a view displaying the newly created session details
-                return RedirectToAction("SessionDetails", new { sessionId = session.Id });
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Handle any errors related to business logic (e.g., active session already exists)
-                TempData["ErrorMessage"] = ex.Message;
-                return RedirectToAction("Error");
-            }
-            catch (Exception ex)
-            {
-                // Handle any other exceptions
-                TempData["ErrorMessage"] = "An error occurred while starting the voting session.";
-                return RedirectToAction("Error");
-            }
+            await voteSessionService.CreateVoteSessionAsync(CurrentUserId, birthdayEmployeeId, CancellationToken.None);
+            return RedirectToAction("Index", "Home");
+        }
+        [Authorize]
+        public async Task<IActionResult> CloseVoteSession(int voteSessionId)
+        {
+            await voteSessionService.CloseVoteSessionAsync(CurrentUserId, voteSessionId, CancellationToken.None);
+            return RedirectToAction("VoteResults", "Vote", new { voteSessionId = voteSessionId });
         }
 
-        // Action to Show Details of an Existing Vote Session
+        [Authorize]
+        public async Task<IActionResult> DeleteVoteSession(int voteSessionId)
+        {
+            await voteSessionService.DeleteVoteSession(CurrentUserId, voteSessionId, CancellationToken.None);
+            return RedirectToAction("AllClosedSessions");
+        }
+
+        [Authorize]
         public async Task<IActionResult> SessionDetails(int sessionId)
         {
-            var session = await voteSessionService.GetSessionDetailsAsync(sessionId);
+            var session = await voteSessionService.GetSessionDetailsAsync(sessionId, CurrentUserId, CancellationToken.None);
             if (session == null)
             {
                 return NotFound();
             }
 
             return View(session);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> AllActiveSessions(CancellationToken cancellationToken)
+        {
+            var sessions = await voteSessionService.GetAllActiveSessionsAsync(CurrentUserId, cancellationToken);
+            return View(sessions);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> AllClosedSessions(CancellationToken cancellationToken)
+        {
+            var sessions = await voteSessionService.GetAllClosedSessionsAsync(CurrentUserId, cancellationToken);
+            return View(sessions);
         }
     }
 }

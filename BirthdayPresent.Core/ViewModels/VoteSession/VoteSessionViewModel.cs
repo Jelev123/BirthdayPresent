@@ -1,5 +1,8 @@
 ﻿namespace BirthdayPresent.Core.ViewModels.VoteSession
 {
+    using BirthdayPresent.Core.ViewModels.Gift;
+    using BirthdayPresent.Core.ViewModels.Vote;
+
     public class VoteSessionViewModel
     {
         public int Id { get; set; }
@@ -25,5 +28,13 @@
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public int? UserVotedGiftId { get; set; }
+
+        public List<VoteViewModel> Votes { get; set; }
+
+        public List<AllGiftsViewModel> AllGifts { get; set; }
+
+        public Dictionary<int, int> SessionSpecificVoteCounts { get; set; }
     }
 }

@@ -4,8 +4,18 @@
 
     public interface IVoteSessionService
     {
-        Task<VoteSessionViewModel> StartSession(string initiatorId, string birthdayEmployeeId);
+        Task CreateVoteSessionAsync(int initiatorId, int birthdayEmployeeId, CancellationToken _cancellationToken);
 
-        Task<VoteSessionViewModel> GetSessionDetailsAsync(int sessionId);
+        Task CloseVoteSessionAsync(int initiatorId, int voteSessionId, CancellationToken _cancellationToken);
+
+        Task DeleteVoteSession(int initiatorId, int voteSessionId, CancellationToken _cancellationToken);
+
+        Task<VoteSessionViewModel> GetSessionDetailsAsync(int sessionId, int currentUserId, CancellationToken cancellationToken);
+
+        Task<IEnumerable<AllSessionsViewModel>> GetAllActiveSessionsAsync(int currentUserId, CancellationToken cancellationToken);
+
+        Task<IEnumerable<AllSessionsViewModel>> GetAllClosedSessionsAsync(int currentUserId, CancellationToken cancellationToken);
+
+        Task<int?> GetUserVoteAsync(int voteSessionId, int userId, CancellationToken cancellationToken);
     }
 }

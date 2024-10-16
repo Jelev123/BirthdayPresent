@@ -4,8 +4,105 @@
 <h2>Vote Session Details for @Model.BirthdayEmployeeName's Birthday</h2>
 
 <p><strong>Initiator:</strong> @Model.InitiatorName</p>
-<p><strong>Start Date:</strong> @Model.StartDate.ToString("yyyy-MM-dd")</p>
-<p><strong>Upcoming Birthday:</strong> @Model.VotingYear.ToString("yyyy-MM-dd")</p>
+<p><strong>Start Date:</strong> @Model.StartDate.ToString()</p>
 <p><strong>Status:</strong> @Model.Status</p>
 
+<!-- Display success and error messages -->
+<div id="message-container"></div>
+
+@if (Model.Status == "Active")
+{
+    @if (Model.CurrentUserId == Model.InitiatorId)
+    {
+        <a class="btn btn-danger" asp-action="CloseVoteSession" asp-controller="VoteSession" asp-route-voteSessionId="@Model.Id">Close session</a>
+    }
+
+    @if (Model.CurrentUserId != Model.BirthdayEmployeeId)
+    {
+        <h3>Vote for a Gift</h3>
+
+        <form id="voteForm">
+            <input type="hidden" name="voteSessionId" value="@Model.Id" />
+            <input type="hidden" name="voterId" value="@Model.CurrentUserId" />
+
+            @if (Model.AllGifts != null && Model.AllGifts.Any())
+            {
+                <div class="row">
+                    @foreach (var gift in Model.AllGifts)
+                    {
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">@gift.Name</h5>
+                                    <p class="card-text">@gift.Description</p>
+                                    <p>
+                                        <strong>Votes:</strong>
+                                        <span id="voteCount-@gift.Id">
+                                            @(Model.SessionSpecificVoteCounts.ContainsKey(gift.Id)
+                                                ? Model.SessionSpecificVoteCounts[gift.Id]
+                                                : 0) <!-- Show 0 if the gift has no votes -->
+                                        </span>
+                                    </p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="GiftId"
+                                               value="@gift.Id"
+                                               required
+                                        @(Model.UserVotedGiftId == gift.Id ? "checked" : "") />
+                                        <label class="form-check-label">Vote for this gift</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-primary mt-2" id="submitVoteBtn">Submit Vote</button>
+            }
+            else
+            {
+                <p>No gifts available for voting.</p>
+            }
+        </form>
+    }
+    else
+    {
+        <p class="text-muted">The birthday person cannot vote on their own gift.</p>
+    }
+}
+
 <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Go Back</a>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#submitVoteBtn').click(function (event) {
+                event.preventDefault();
+
+                var formData = $('#voteForm').serialize();
+                var selectedGiftId = $('input[name="GiftId"]:checked').val();
+                var voteCountElement = $('#voteCount-' + selectedGiftId);
+
+                $.ajax({
+                    url: '@Url.Action("SubmitVote", "Vote")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#message-container').html('<div class="alert alert-success">' + response.message + '</div>');
+
+                            // Update the vote count for the selected gift dynamically
+                            voteCountElement.text(response.updatedVoteCount);
+                        } else {
+                            $('#message-container').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred';
+                        $('#message-container').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                    }
+                });
+            });
+        });
+    </script>
+}

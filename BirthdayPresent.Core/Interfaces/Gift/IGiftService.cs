@@ -4,10 +4,6 @@
 
     public interface IGiftService
     {
-        Task<IEnumerable<AllGiftsViewModel>> GetAllGiftsAsync();
-
-        Task<GiftByIdViewModel> GiftById(int id);
-
-        Task VoteAsync(int id, string userId);
+        Task<IEnumerable<AllGiftsViewModel>> GetAllGiftsAsync(CancellationToken cancellationToken);
     }
 }

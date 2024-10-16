@@ -4,6 +4,6 @@
 
     public interface IEmployeeService
     {
-        Task<IEnumerable<AllEmployeesViewModel>> GetAllEmployeesAsync();
+        Task<IEnumerable<AllEmployeesViewModel>> GetAllAvailableAsync(CancellationToken _cancellationToken, int currentUserId);
     }
 }

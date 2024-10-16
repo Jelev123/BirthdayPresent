@@ -1,0 +1,47 @@
+﻿@using BirthdayPresent.Core.ViewModels.Vote;
+@model VoteResultViewModel
+
+<h2>Voting Results for  "@Model.BirthdayEmployeeName"</h2>
+
+<h3>Gifts and Votes</h3>
+<h5>Finish date: @Model.FinishDate</h5>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Gift</th>
+            <th>Vote Count</th>
+            <th>Voters</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gift in Model.Gifts)
+        {
+            <tr>
+                <td>@gift.GiftName</td>
+                <td>@gift.VoteCount</td>
+                <td>
+                    @foreach (var voter in gift.Voters)
+                    {
+                        <div>@voter</div>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<h3>People who haven't voted</h3>
+@if (Model.NonVoters.Any())
+{
+    <ul>
+        @foreach (var nonVoter in Model.NonVoters)
+        {
+            <li>@nonVoter</li>
+        }
+    </ul>
+}
+else
+{
+    <p>Everyone has voted!</p>
+}

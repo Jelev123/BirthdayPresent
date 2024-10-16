@@ -60,7 +60,7 @@
 
         protected async Task<T> GetEntityByIdAsync(int Id, CancellationToken _cancellationToken)
         {
-            var entity = await this.FindByIdAsync(Id, _cancellationToken);
+            var entity = await FindByIdOrDefaultAsync(Id, _cancellationToken);
 
             if (entity != null)
                 return entity;
@@ -92,16 +92,6 @@
         }
 
         private async Task<T> FindByIdOrDefaultAsync(int id, CancellationToken _cancellationToken)
-        {
-            var entity = await _data.Set<T>()
-                .Where(e => e.Id == id && !e.Deleted)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(_cancellationToken);
-
-            return entity;
-        }
-
-        private async Task<T> FindByIdAsync(int id, CancellationToken _cancellationToken)
         {
             var entity = await _data.Set<T>()
                 .Where(e => e.Id == id && !e.Deleted)

@@ -12,10 +12,8 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Gift ID</th>
             <th>Gift Name</th>
-            <th>Likes</th>
-            <th>Actions</th>
+            <th>Description</th>
         </tr>
     </thead>
     <tbody>
@@ -24,12 +22,8 @@
             foreach (var gift in Model)
             {
                 <tr>
-                    <td>@gift.GiftId</td>
-                    <td>@gift.GiftName</td>
-                    <td id="voted-@gift.GiftId">Vote: @gift.VoteCount</td>
-                    <td>
-                        <a style="color: black" class="btn btn-success" asp-action="GiftById" asp-controller="Gift" asp-route-id="@gift.GiftId">Gift Details</a>
-                    </td>
+                    <td>@gift.Name</td>
+                    <td>@gift.Description</td>
                 </tr>
             }
         }

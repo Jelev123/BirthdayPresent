@@ -2,5 +2,16 @@
     ViewData["Title"] = "Home Page";
 }
 
-<a style="color: black" class="btn btn-success" href="/Gift/AllGifts">All Gifts</a>
-<a style="color: black" class="btn btn-success" href="/Employee/AllEmployees">All Employees</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="mb-4">Welcome to the Birthday Present App</h1>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <strong>Please log in</strong> to access the system features.
+                </div>
+            }
+        </div>
+    </div>
+</div>

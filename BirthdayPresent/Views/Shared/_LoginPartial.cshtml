@@ -1,7 +1,7 @@
 ﻿@using BirthdayPresent.Infrastructure.Data.Models;
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<User> SignInManager
-@inject UserManager<User> UserManager
+@inject SignInManager<Employee> SignInManager
+@inject UserManager<Employee> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))

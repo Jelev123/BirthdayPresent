@@ -1,0 +1,39 @@
+﻿@using BirthdayPresent.Core.ViewModels.VoteSession;
+@model IEnumerable<AllSessionsViewModel>
+
+
+@{
+    ViewData["Title"] = "All Sessions";
+}
+
+<h3>All active vote sessions</h3>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Birthday Employee Name</th>
+                <th>Created At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var session in Model)
+            {
+                <tr>
+                    <td>@session.BirthdaysEmployeerName</td>
+                    <td>@session.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@session.Status</td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="SessionDetails" asp-controller="VoteSession" asp-route-sessionId="@session.Id">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No vote sessions available.</p>
+}

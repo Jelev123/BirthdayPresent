@@ -89,6 +89,12 @@
 
             await userManager.CreateAsync(employee3, "Asd123!!");
             await userManager.AddToRoleAsync(employee1, "regular");
+
+            await userManager.CreateAsync(employee4, "Asd123!!");
+            await userManager.AddToRoleAsync(employee1, "regular");
+
+            await userManager.CreateAsync(employee5, "Asd123!!");
+            await userManager.AddToRoleAsync(employee1, "regular");
         }
     }
 }

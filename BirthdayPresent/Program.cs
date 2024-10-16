@@ -1,12 +1,16 @@
 using BirthdayPresent.ConfigExtensions;
 using BirthdayPresent.Infrastructure.Seeding;
+using BirthdayPresent.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.RegisterServices();
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddIdentity();
+builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
+
 
 var app = builder.Build();
 
@@ -24,6 +28,7 @@ else
 
 DbSeeder.EnsureDatabaseSeeded(app.Services).GetAwaiter().GetResult();
 
+//app.UseMiddleware<ErrorHandler>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

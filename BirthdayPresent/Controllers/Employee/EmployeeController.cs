@@ -1,20 +1,24 @@
 ﻿namespace BirthdayPresent.Controllers.Employee
 {
+    using BirthdayPresent.Controllers.Base;
     using BirthdayPresent.Core.Interfaces.Employee;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
-    public class EmployeeController : Controller
+    public class EmployeeController : BaseController
     {
         private readonly IEmployeeService employeeService;
-
+        
         public EmployeeController(IEmployeeService employeeService)
         {
             this.employeeService = employeeService;
         }
 
-        public async Task<IActionResult> AllEmployees()
+        [Authorize]
+        public async Task<IActionResult> AllEmployees(CancellationToken _cancellationToken)
         {
-            return View(await this.employeeService.GetAllEmployeesAsync());
+            var employees = await employeeService.GetAllAvailableAsync(_cancellationToken, CurrentUserId);
+            return View(employees);
         }
     }
 }

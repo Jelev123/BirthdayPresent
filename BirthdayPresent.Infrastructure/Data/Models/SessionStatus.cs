@@ -14,3 +14,4 @@
         public ICollection<VoteSession> VoteSessions { get; set; }
     }
 }
+    

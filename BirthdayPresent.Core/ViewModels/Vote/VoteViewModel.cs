@@ -2,12 +2,14 @@
 {
     public class VoteViewModel
     {
+        public int Id { get; set; }
+
         public int GiftId { get; set; }
 
-        public string VoterId { get; set; }
+        public string GiftName { get; set; }
+
+        public int VoterId { get; set; }
 
         public int VoteSessionId { get; set; }
-
-        public DateTime VotedAt { get; set; }
     }
 }

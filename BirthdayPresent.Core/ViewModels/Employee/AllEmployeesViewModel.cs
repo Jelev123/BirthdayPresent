@@ -2,12 +2,18 @@
 {
     public class AllEmployeesViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 
-        public bool IsHasABirthDay { get; set; }
+        public bool HasBirthday { get; set; }
+
+        public bool HasActiveGlobalSession { get; set; }
+
+        public bool HasActiveSessionForYear { get; set; }
     }
 }
