@@ -1,9 +1,14 @@
 ﻿@using BirthdayPresent.Core.ViewModels.VoteSession;
+@using System.Security.Claims;
 @model IEnumerable<AllSessionsViewModel>
 
 
 @{
     ViewData["Title"] = "All Sessions";
+}
+
+@{
+    var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 }
 
 <h3>All closed vote sessions</h3>
@@ -29,7 +34,10 @@
                     <td>@session.Status</td>
                     <td>
                         <a class="btn btn-primary" asp-action="VoteResults" asp-controller="Vote" asp-route-voteSessionId="@session.Id">Details</a>
-                        <a class="btn btn-danger" asp-action="DeleteVoteSession" asp-controller="VoteSession" asp-route-voteSessionId="@session.Id">Delete session</a>
+                        @if (session.InitiatorId == currentUserId)
+                        {
+                            <a class="btn btn-danger" asp-action="DeleteVoteSession" asp-controller="VoteSession" asp-route-voteSessionId="@session.Id">Delete session</a>
+                        }
                     </td>
                 </tr>
             }

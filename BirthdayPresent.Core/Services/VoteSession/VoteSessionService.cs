@@ -177,6 +177,7 @@
                  .Select(s => new AllSessionsViewModel
                  {
                      Id = s.Id,
+                     InitiatorId = s.InitiatorId,
                      BirthdaysEmployeerName = s.BirthdayEmployee.FirstName + " " + s.BirthdayEmployee.LastName,
                      CreatedAt = s.CreatedAt,
                      FinishDate = s.EndDate,

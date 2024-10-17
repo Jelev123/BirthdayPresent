@@ -6,6 +6,8 @@
     {
         public int Id { get; set; }
 
+        public int InitiatorId { get; set; }
+
         public string BirthdaysEmployeerName { get; set; }
 
         public string Status { get; set; }
