@@ -49,3 +49,4 @@ The cache is invalidated when a session is created, closed, or deleted to ensure
 To get the project up and running locally:
 
 Clone this repository: https://github.com/Jelev123/BirthdayPresent.git
+After that it have to change the `ConnectionStrings` which is located in `Manage user secrets`
