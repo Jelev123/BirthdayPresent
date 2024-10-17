@@ -1,6 +1,5 @@
 ﻿namespace BirthdayPresent.Infrastructure.Seeding
 {
-    using BirthdayPresent.Infrastructure.Data;
     using BirthdayPresent.Infrastructure.Data.Models;
     using Microsoft.AspNetCore.Identity;
 
@@ -81,30 +80,20 @@
             };
 
 
-            await userManager.CreateAsync(employee1, "Asd123!!");
+            await userManager.CreateAsync(employee1, "123456");
             await userManager.AddToRoleAsync(employee1, "regular");
 
-            await userManager.CreateAsync(employee2, "Asd123!!");
+            await userManager.CreateAsync(employee2, "123456");
             await userManager.AddToRoleAsync(employee1, "regular");
 
-            await userManager.CreateAsync(employee3, "Asd123!!");
+            await userManager.CreateAsync(employee3, "123456");
             await userManager.AddToRoleAsync(employee1, "regular");
 
-            await userManager.CreateAsync(employee4, "Asd123!!");
+            await userManager.CreateAsync(employee4, "123456");
             await userManager.AddToRoleAsync(employee1, "regular");
 
-            await userManager.CreateAsync(employee5, "Asd123!!");
+            await userManager.CreateAsync(employee5, "123456");
             await userManager.AddToRoleAsync(employee1, "regular");
         }
     }
 }
-
-
-//UserName = "admin",
-//                Email = "admin@yahoo.com",
-//                NormalizedEmail = "admin@yahoo.com".ToUpper(),
-//                EmailConfirmed = true,
-//                NormalizedUserName = "admin".ToUpper(),
-//                SecurityStamp = Guid.NewGuid().ToString(),
-//                CreationDate = DateTime.UtcNow,
-//                LastModifiedOn = DateTime.UtcNow

@@ -6,7 +6,7 @@
     using BirthdayPresent.Infrastructure.Data.Models.Interfaces.Base;
     using Microsoft.EntityFrameworkCore;
 
-    public class BaseService<T> where T : class, IBaseEntity
+    public abstract class BaseService<T> where T : class, IBaseEntity
     {
         protected readonly ApplicationDbContext _data;
 

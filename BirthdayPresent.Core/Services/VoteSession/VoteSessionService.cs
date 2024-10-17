@@ -24,10 +24,7 @@
         {
             var birthdayEmployee = await FindIdByIdOrDefaultAsync<Employee>(birthdayEmployeeId, _cancellationToken);
 
-            if (birthdayEmployee.DateOfBirth < DateTime.UtcNow)
-            {
-                throw new Exception(ErrorMessages.BdayIsOver);
-            }
+            var currentYear = DateTime.UtcNow.Year;
 
             if (initiatorId == birthdayEmployeeId)
             {
@@ -46,7 +43,7 @@
 
             var existingYearlySession = await _data.VoteSessions
                 .FirstOrDefaultAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId
-                                           && vs.VotingYear == DateTime.UtcNow.Year,
+                                           && vs.VotingYear >= currentYear,
                                            _cancellationToken);
 
             if (existingYearlySession != null)
@@ -67,7 +64,7 @@
                 InitiatorId = initiatorId,
                 StatusId = activeStatus.Id,
                 Status = activeStatus,
-                VotingYear = DateTime.UtcNow.Year,
+                VotingYear = currentYear,
                 StartDate = DateTime.UtcNow,
                 EndDate = birthdayEmployee.DateOfBirth.Date,
                 BirthdayEmployeeId = birthdayEmployeeId,
@@ -83,10 +80,7 @@
         {
             var voteSession = await GetEntityByIdAsync(voteSessionId, _cancellationToken);
 
-            if (voteSession.InitiatorId != initiatorId)
-            {
-                throw new Exception(ErrorMessages.OnlyInitiator);
-            }
+            EnsureInitiator(voteSession.InitiatorId, initiatorId);
 
             voteSession.StatusId = (int)VoteSessionStatusEnum.Closed;
             voteSession.EndDate = DateTime.UtcNow;
@@ -97,10 +91,12 @@
 
         public async Task DeleteVoteSession(int initiatorId, int voteSessionId, CancellationToken _cancellationToken)
         {
-            var session = await GetEntityByIdAsync(voteSessionId, _cancellationToken);
+            var voteSession = await GetEntityByIdAsync(voteSessionId, _cancellationToken);
 
-            session.Deleted = true;
-            await SaveModificationAsync(session, _cancellationToken);
+            EnsureInitiator(voteSession.InitiatorId, initiatorId);
+
+            voteSession.Deleted = true;
+            await SaveModificationAsync(voteSession, _cancellationToken);
         }
 
 
@@ -198,6 +194,14 @@
                 .FirstOrDefaultAsync(cancellationToken);
 
             return userVote;
+        }
+
+        private void EnsureInitiator(int sessionInitiatorId, int requestInitiatorId)
+        {
+            if (sessionInitiatorId != requestInitiatorId)
+            {
+                throw new Exception(ErrorMessages.OnlyInitiator);
+            }
         }
     }
 }

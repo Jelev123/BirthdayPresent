@@ -22,7 +22,7 @@
 
         public async Task<VoteResultViewModel> GetVoteResultsAsync(int voteSessionId, int currentUserId, CancellationToken cancellationToken)
         {
-            var cacheKey = string.Format(CachedServiceParams.CachedKeyVoteResult, voteSessionId);
+            var cacheKey = string.Format(CachedServiceParams.CachedKeyVoteResult, voteSessionId, currentUserId);
 
             if (!_memoryCache.TryGetValue(cacheKey, out VoteResultViewModel voteResult))
             {
@@ -40,7 +40,7 @@
 
         public async Task<int> VoteForGiftAsync(int voteSessionId, int giftId, int voterId, CancellationToken cancellationToken)
         {
-            var cacheKeyVoteResult = string.Format(CachedServiceParams.CachedKeyVoteResult, voteSessionId);
+            var cacheKeyVoteResult = string.Format(CachedServiceParams.CachedKeyVoteResult, voteSessionId, "*");
             _memoryCache.Remove(cacheKeyVoteResult);
 
             var cacheKeySessionDetails = string.Format(CachedServiceParams.CachedKeySessionDetails, voteSessionId, voterId);

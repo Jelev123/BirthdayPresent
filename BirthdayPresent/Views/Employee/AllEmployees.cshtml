@@ -12,7 +12,7 @@
         <tr>
             <th>Employee Name</th>
             <th>Employee Date of Birth</th>
-            <th>Actions</th> <!-- Add a column for the actions -->
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -22,9 +22,9 @@
             {
                 <tr>
                     <td>@employee.FirstName @employee.LastName</td>
-                    <td>@employee.DateOfBirth</td>
+                    <td>@employee.DateOfBirth.ToString("dd.MM.yyyy")</td>
                     <td>
-                        @if (employee.DateOfBirth > DateTime.UtcNow)
+                        @if (employee.HasBirthday)
                         {
                             @if (!employee.HasActiveSessionForYear && !employee.HasActiveGlobalSession)
                             {

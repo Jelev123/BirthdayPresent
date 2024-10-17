@@ -147,7 +147,6 @@
             return resultViewModel;
         }
 
-
         private void ValidateVoteSessions(object voteSession)
         {
             if (voteSession == null)
