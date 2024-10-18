@@ -1,4 +1,4 @@
-🎁 Gift Voting Application for Employee Birthdays 🎂
+# 🎁 Gift Voting Application for Employee Birthdays 🎂
 
 Welcome to the `Gift Voting Application!` This app is designed to help coworkers organize a group decision on what gift to choose for an employee's upcoming birthday. It ensures a seamless, transparent, and fun voting process without spoiling the surprise for the birthday person.
 
@@ -12,28 +12,45 @@ Welcome to the `Gift Voting Application!` This app is designed to help coworkers
 | **Database**        | SQL Server                            |
 | **Authentication**  | ASP.NET Identity for user management  |
 
+## 🚀 Caching with Decorator Pattern
 
-🛠️ Design Patterns
-This project leverages design patterns to ensure scalable and maintainable code. One key pattern used is:
+The application optimizes performance using the **Decorator Pattern** to introduce a memory cache layer without modifying the core business logic. Two caching services are used in the application:
 
-Decorator Pattern for Caching
-The Decorator Pattern is implemented to manage in-memory caching across several services. This helps improve performance by caching frequently accessed data (such as vote session details and voting results), reducing redundant database calls, and improving overall application responsiveness.
+- **VoteCachedService**: This service decorates the `VoteService` to cache vote results, ensuring that frequently accessed data is cached and retrieved efficiently. After a user casts a vote, the cached results are invalidated to guarantee consistency.
+- **VoteSessionCachedService**: This service decorates the `VoteSessionService` and caches details of active and closed voting sessions, reducing database queries on repeated accesses.
 
-How It's Implemented:
-Two key classes, [VoteCachedService](https://github.com/Jelev123/BirthdayPresent/blob/main/BirthdayPresent.Core/Services/Cached/VoteCachedService.cs) and [VoteSessionCachedService](https://github.com/Jelev123/BirthdayPresent/blob/main/BirthdayPresent.Core/Services/Cached/VoteSessionCachedService.cs), wrap around the core services (VoteService and VoteSessionService respectively) to add caching functionality without modifying the core business logic. Here’s a breakdown of how it works:
+#### How Caching Works:
+1. **Caching Duration**: Cached data is stored for 5 minutes (configurable) to ensure data freshness while improving performance.
+2. **Cache Invalidation**: Whenever a vote is cast or a vote session is created, updated, or closed, the relevant cache entries are automatically invalidated to ensure users see updated results.
 
-`VoteCachedService:`
+#### Cached Methods:
+- `GetVoteResultsAsync(voteSessionId, currentUserId)`
+- `GetSessionDetailsAsync(sessionId, currentUserId)`
+- `GetAllActiveSessionsAsync(currentUserId)`
+- `GetAllClosedSessionsAsync(currentUserId)`
 
-This class decorates the VoteService by adding a memory cache layer.
-It caches the results of a vote session (GetVoteResultsAsync) to reduce repeated database queries when users check voting results.
-After a vote is cast (VoteForGiftAsync), the relevant cache entries are invalidated to ensure fresh data on subsequent requests.
+## 🔥 Error Handling and Validation
 
-`VoteSessionCachedService:`
+The application has robust error handling to ensure that invalid operations are not allowed. Some key validations include:
 
-This class decorates the VoteSessionService to cache information about vote sessions.
-It caches details of active and closed voting sessions, session details (GetSessionDetailsAsync), and the user's vote for a session (GetUserVoteAsync).
-The cache is invalidated when a session is created, closed, or deleted to ensure that updates reflect immediately.
+- **Session Validation**: Ensures only one active vote session per birthday employee is allowed in a year. Error messages such as `ActiveSessionExist` and `SessionAlreadyCreated` are used to inform users about existing sessions.
+- **User Validation**: Users cannot vote for their own birthday sessions, and the application throws an error if the birthday employee tries to access session details (error message `BirthdayEmployeeRestrict`).
+- **Vote Validation**: Users cannot vote more than once in the same session, and only active gifts can be voted on. The app handles cases like "already voted" and "invalid gift" with meaningful error messages (`AlreadyVoted`, `InvalidGift`).
 
+The application ensures that all exceptions are caught and meaningful error messages are provided to users.
+
+## 🛠 Service Layer Architecture
+
+The application follows a service-oriented architecture where core business logic is encapsulated in service classes. These services follow the **Separation of Concerns** principle to ensure that data access, business logic, and presentation are clearly separated.
+
+#### Core Services:
+1. **VoteService**: Manages voting logic, including casting votes, validating votes, and retrieving vote results.
+2. **VoteSessionService**: Manages voting sessions, such as creating, closing, and deleting sessions, as well as fetching session details.
+3. **GiftService**: Manages gift data, including fetching available gifts for the voting process.
+4. **EmployeeService**: Handles employee-related data, including fetching employee information for voting sessions.
+5. **BaseService**: Provides shared functionality for all services, such as CRUD operations.
+
+Each service implements its respective interface, allowing flexibility and adherence to SOLID principles. Additionally, some services are decorated with caching services (`VoteCachedService`, `VoteSessionCachedService`) to enhance performance.
 
 ## 🎉 How It Works
 
@@ -45,8 +62,15 @@ The cache is invalidated when a session is created, closed, or deleted to ensure
 | **Closing the Vote**       | The vote initiator can close the voting session when they believe enough votes have been collected. Users can see the voting results, revealing the most popular gift. |
 | **Employee Registration**  | New employees can register through the app, allowing them to participate in future birthday voting sessions. |
 
-🛠️ Installation
+## 🛠️ Installation and Setup
+
 To get the project up and running locally:
 
-Clone this repository: https://github.com/Jelev123/BirthdayPresent.git
-After that it have to change the `ConnectionStrings` which is located in `Manage user secrets`
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/Jelev123/BirthdayPresent.git
+    cd BirthdayPresent
+    ```
+
+2. **Set up the database connection**:
+   The application uses SQL Server for data storage. You need to update the `ConnectionStrings` section in your `appsettings.json` or `user secrets` file with your database configuration.
