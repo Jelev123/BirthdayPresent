@@ -12,7 +12,6 @@
     {
         private readonly VoteService voteService;
         private readonly IMemoryCache _memoryCache;
-        private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(30);
 
         public VoteCachedService(VoteService voteService, IMemoryCache memoryCache)
         {
@@ -30,7 +29,7 @@
 
                 var cacheOptions = new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = _cacheDuration
+                    AbsoluteExpirationRelativeToNow = CachedServiceParams._cacheDuration
                 };
                 _memoryCache.Set(cacheKey, voteResult, cacheOptions);
             }
