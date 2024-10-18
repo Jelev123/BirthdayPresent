@@ -8,6 +8,8 @@
 
         public const string VoteSessionNotFound = "Vote session not found.";
 
+        public const string VoteSessionIsClosed = "Vote session is closed.";
+
         public const string BirthdayEmployeeRestrict = "Birth day employee cannot do this";
 
         public const string VoterNotFound = "VoterNotFound";

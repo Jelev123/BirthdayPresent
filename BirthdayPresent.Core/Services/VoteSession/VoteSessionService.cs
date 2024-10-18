@@ -43,7 +43,7 @@
 
             var existingYearlySession = await _data.VoteSessions
                 .FirstOrDefaultAsync(vs => vs.BirthdayEmployeeId == birthdayEmployeeId
-                                           && vs.VotingYear >= currentYear,
+                                           && vs.VotingYear == currentYear,
                                            _cancellationToken);
 
             if (existingYearlySession != null)

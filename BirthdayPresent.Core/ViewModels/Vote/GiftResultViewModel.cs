@@ -4,8 +4,6 @@
 
     public class GiftResultViewModel
     {
-        public int Id { get; set; }
-
         public string GiftName { get; set; }
 
         public int VoteCount { get; set; }

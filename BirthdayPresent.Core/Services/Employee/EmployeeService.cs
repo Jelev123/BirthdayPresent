@@ -17,7 +17,7 @@
 
         public async Task<IEnumerable<AllEmployeesViewModel>> GetAllAvailableAsync(CancellationToken cancellationToken, int currentUserId)
         {
-            var currentDate = DateTime.UtcNow;
+            var currentDate = DateTime.UtcNow.Date;
             var currentYear = currentDate.Year;
 
             var activeSessions = await _data.VoteSessions
@@ -34,7 +34,7 @@
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     DateOfBirth = u.DateOfBirth,
-                    HasBirthday = u.DateOfBirth.Month == currentDate.Month && u.DateOfBirth.Day >= currentDate.Day,
+                    HasBirthday = new DateTime(currentYear, u.DateOfBirth.Month, u.DateOfBirth.Day) >= currentDate,
                     HasActiveSessionForYear = activeBirthdayEmployeeIds.Contains(u.Id)
                 })
                 .ToListAsync(cancellationToken);

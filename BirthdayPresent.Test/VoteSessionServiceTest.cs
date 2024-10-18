@@ -80,32 +80,6 @@ namespace BirthdayPresent.Test
         }
 
         [Fact]
-        public async Task CreateVoteSession_ExistingSessionForNextYear_ThrowsException()
-        {
-            var dbContext = GetInMemoryDbContext();
-            var voteSessionService = new VoteSessionService(dbContext);
-
-            dbContext.VoteSessions.Add(new VoteSession
-            {
-                Id = 2,
-                InitiatorId = 3,
-                BirthdayEmployeeId = 1,
-                VotingYear = DateTime.UtcNow.Year + 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            });
-            await dbContext.SaveChangesAsync();
-
-            int birthdayEmployeeId = 1;
-            int initiatorId = 2;
-
-            var exception = await Assert.ThrowsAsync<Exception>(() =>
-                voteSessionService.CreateVoteSessionAsync(initiatorId, birthdayEmployeeId, CancellationToken.None));
-
-            Assert.Equal(ErrorMessages.SessionAlreadyCreated, exception.Message);
-        }
-
-        [Fact]
         public async Task CloseVoteSession_InitiatorCanCloseSession_Success()
         {
             var dbContext = GetInMemoryDbContext();

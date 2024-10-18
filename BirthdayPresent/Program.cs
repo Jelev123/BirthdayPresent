@@ -28,7 +28,7 @@ else
 
 DbSeeder.EnsureDatabaseSeeded(app.Services).GetAwaiter().GetResult();
 
-//app.UseMiddleware<ErrorHandler>();
+app.UseMiddleware<ErrorHandler>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

@@ -1,6 +1,7 @@
 ﻿namespace BirthdayPresent.Core.Services.Vote
 {
     using BirthdayPresent.Core.Constants;
+    using BirthdayPresent.Core.Enums;
     using BirthdayPresent.Core.Interfaces.Vote;
     using BirthdayPresent.Core.Services.Base;
     using BirthdayPresent.Core.ViewModels.Employee;
@@ -28,12 +29,17 @@
                    Id = voteSessionId,
                    CreatedAt = vs.CreatedAt,
                    BirthdayEmployeeId = vs.BirthdayEmployeeId,
-                   BirthdayEmployeeName = vs.BirthdayEmployee.FirstName + " " + vs.BirthdayEmployee.LastName
+                   BirthdayEmployeeName = vs.BirthdayEmployee.FirstName + " " + vs.BirthdayEmployee.LastName,
+                   StatusId = vs.StatusId,
                })
                .FirstOrDefaultAsync(cancellationToken);
 
-            ValidateVoteSessions(voteSession);
+            if (voteSession.StatusId == (int)VoteSessionStatusEnum.Closed)
+            {
+                throw new Exception(ErrorMessages.VoteSessionIsClosed);
+            }
 
+            ValidateVoteSessions(voteSession);
             ValidateBirthdayEmployee(voteSession, voterId);
 
             var voter = await _data.Users
