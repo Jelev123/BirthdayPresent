@@ -2,6 +2,7 @@
 {
     using BirthdayPresent.Core.Constants;
     using BirthdayPresent.Core.Enums;
+    using BirthdayPresent.Core.Interfaces.Employee;
     using BirthdayPresent.Core.Interfaces.VoteSession;
     using BirthdayPresent.Core.Services.Base;
     using BirthdayPresent.Core.ViewModels.Gift;
@@ -15,9 +16,11 @@
 
     public class VoteSessionService : BaseService<VoteSession>, IVoteSessionService
     {
-        public VoteSessionService(ApplicationDbContext dbContext) : base(dbContext)
-        {
+        private readonly IEmployeeService employeeService;
 
+        public VoteSessionService(ApplicationDbContext dbContext, IEmployeeService employeeService) : base(dbContext)
+        {
+            this.employeeService = employeeService;
         }
 
         public async Task CreateVoteSessionAsync(int initiatorId, int birthdayEmployeeId, CancellationToken _cancellationToken)
@@ -145,7 +148,7 @@
 
             if (details != null)
             {
-                var userVote = await GetUserVoteAsync(sessionId, currentUserId, cancellationToken);
+                var userVote = await employeeService.GetUserVoteAsync(sessionId, currentUserId, cancellationToken);
                 details.UserVotedGiftId = userVote;
             }
 
@@ -185,16 +188,6 @@
                      Status = s.Status.Status,
                  })
                  .ToListAsync();
-        }
-
-        public async Task<int?> GetUserVoteAsync(int voteSessionId, int userId, CancellationToken cancellationToken)
-        {
-            var userVote = await _data.Votes
-                .Where(v => v.VoteSessionId == voteSessionId && v.VoterId == userId)
-                .Select(v => v.GiftId)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            return userVote;
         }
 
         private void EnsureInitiator(int sessionInitiatorId, int requestInitiatorId)

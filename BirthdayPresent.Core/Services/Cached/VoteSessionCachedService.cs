@@ -2,6 +2,7 @@
 {
     using BirthdayPresent.Core.Constants.VoteSessionCachedServiceParams;
     using BirthdayPresent.Core.Interfaces.VoteSession;
+    using BirthdayPresent.Core.Services.Employee;
     using BirthdayPresent.Core.Services.VoteSession;
     using BirthdayPresent.Core.ViewModels.VoteSession;
     using Microsoft.Extensions.Caching.Memory;
@@ -12,12 +13,14 @@
     public class VoteSessionCachedService : IVoteSessionService
     {
         private readonly VoteSessionService voteSessionService;
+        private readonly EmployeeService employeeService;
         private readonly IMemoryCache _memoryCache;
 
-        public VoteSessionCachedService(VoteSessionService voteSessionService, IMemoryCache memoryCache)
+        public VoteSessionCachedService(VoteSessionService voteSessionService, IMemoryCache memoryCache, EmployeeService employeeService)
         {
             this.voteSessionService = voteSessionService;
             _memoryCache = memoryCache;
+            this.employeeService = employeeService;
         }
 
         public async Task CreateVoteSessionAsync(int initiatorId, int birthdayEmployeeId, CancellationToken _cancellationToken)
@@ -105,7 +108,7 @@
 
             if (!_memoryCache.TryGetValue(cacheKey, out int? userVote))
             {
-                userVote = await voteSessionService.GetUserVoteAsync(voteSessionId, userId, cancellationToken);
+                userVote = await employeeService.GetUserVoteAsync(voteSessionId, userId, cancellationToken);
 
                 var cacheOptions = new MemoryCacheEntryOptions
                 {

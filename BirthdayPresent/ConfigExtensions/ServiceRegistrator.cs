@@ -24,6 +24,7 @@
 
             services.AddScoped<VoteSessionService>();
             services.AddScoped<VoteService>();
+            services.AddScoped<EmployeeService>();
 
         }
     }

@@ -15,7 +15,5 @@
         Task<IEnumerable<AllSessionsViewModel>> GetAllActiveSessionsAsync(int currentUserId, CancellationToken cancellationToken);
 
         Task<IEnumerable<AllSessionsViewModel>> GetAllClosedSessionsAsync(int currentUserId, CancellationToken cancellationToken);
-
-        Task<int?> GetUserVoteAsync(int voteSessionId, int userId, CancellationToken cancellationToken);
     }
 }

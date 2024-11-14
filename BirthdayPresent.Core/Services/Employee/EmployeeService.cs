@@ -41,5 +41,15 @@
 
             return employees;
         }
+
+        public async Task<int?> GetUserVoteAsync(int voteSessionId, int userId, CancellationToken cancellationToken)
+        {
+            var userVote = await _data.Votes
+                .Where(v => v.VoteSessionId == voteSessionId && v.VoterId == userId)
+                .Select(v => v.GiftId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return userVote;
+        }
     }
 }
