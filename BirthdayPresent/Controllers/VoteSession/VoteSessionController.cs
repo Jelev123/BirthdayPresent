@@ -5,58 +5,74 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    [Authorize]
     public class VoteSessionController : BaseController
     {
-        private readonly IVoteSessionService voteSessionService;
+        private readonly IVoteSessionService _voteSessionService;
 
         public VoteSessionController(IVoteSessionService voteSessionService)
         {
-            this.voteSessionService = voteSessionService;
+            _voteSessionService = voteSessionService;
         }
 
-        [Authorize]
-        public async Task<IActionResult> CreateVoteSession(int birthdayEmployeeId)
+        public async Task<IActionResult> StartVoteSession(int birthdayEmployeeId, CancellationToken cancellationToken)
         {
-            await voteSessionService.CreateVoteSessionAsync(CurrentUserId, birthdayEmployeeId, CancellationToken.None);
-            return RedirectToAction("Index", "Home");
-        }
-        [Authorize]
-        public async Task<IActionResult> CloseVoteSession(int voteSessionId)
-        {
-            await voteSessionService.CloseVoteSessionAsync(CurrentUserId, voteSessionId, CancellationToken.None);
-            return RedirectToAction("VoteResults", "Vote", new { voteSessionId = voteSessionId });
-        }
-
-        [Authorize]
-        public async Task<IActionResult> DeleteVoteSession(int voteSessionId)
-        {
-            await voteSessionService.DeleteVoteSession(CurrentUserId, voteSessionId, CancellationToken.None);
-            return RedirectToAction("AllClosedSessions");
+            try
+            {
+                await _voteSessionService.CreateVoteSessionAsync(CurrentUserId, birthdayEmployeeId, cancellationToken);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new { message = ex.Message });
+            }
         }
 
-        [Authorize]
-        public async Task<IActionResult> SessionDetails(int sessionId)
+        public async Task<IActionResult> CloseVoteSession(int voteSessionId, CancellationToken cancellationToken)
         {
-            var session = await voteSessionService.GetSessionDetailsAsync(sessionId, CurrentUserId, CancellationToken.None);
+            try
+            {
+                await _voteSessionService.CloseVoteSessionAsync(CurrentUserId, voteSessionId, cancellationToken);
+                return RedirectToAction("VoteResults", "Vote", new { VoteSessionId = voteSessionId });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new { message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> DeleteVoteSession(int voteSessionId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _voteSessionService.DeleteVoteSession(CurrentUserId, voteSessionId, cancellationToken);
+                return RedirectToAction("AllClosedSessions");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new { message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> SessionDetails(int sessionId, CancellationToken cancellationToken)
+        {
+            var session = await _voteSessionService.GetSessionDetailsAsync(sessionId, CurrentUserId, cancellationToken);
             if (session == null)
             {
                 return NotFound();
             }
-
             return View(session);
         }
 
-        [Authorize]
         public async Task<IActionResult> AllActiveSessions(CancellationToken cancellationToken)
         {
-            var sessions = await voteSessionService.GetAllActiveSessionsAsync(CurrentUserId, cancellationToken);
+            var sessions = await _voteSessionService.GetAllActiveSessionsAsync(CurrentUserId, cancellationToken);
             return View(sessions);
         }
 
-        [Authorize]
         public async Task<IActionResult> AllClosedSessions(CancellationToken cancellationToken)
         {
-            var sessions = await voteSessionService.GetAllClosedSessionsAsync(CurrentUserId, cancellationToken);
+            var sessions = await _voteSessionService.GetAllClosedSessionsAsync(CurrentUserId, cancellationToken);
             return View(sessions);
         }
     }

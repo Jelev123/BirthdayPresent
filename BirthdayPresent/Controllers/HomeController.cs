@@ -1,5 +1,6 @@
 ﻿namespace BirthdayPresent.Controllers
 {
+
     using BirthdayPresent.Models;
     using Microsoft.AspNetCore.Mvc;
     using System.Diagnostics;
@@ -13,7 +14,7 @@
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             return View();
         }

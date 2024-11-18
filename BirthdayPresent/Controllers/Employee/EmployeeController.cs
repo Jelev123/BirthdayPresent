@@ -5,6 +5,8 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+
+    [Authorize]
     public class EmployeeController : BaseController
     {
         private readonly IEmployeeService employeeService;
@@ -14,7 +16,6 @@
             this.employeeService = employeeService;
         }
 
-        [Authorize]
         public async Task<IActionResult> AllEmployees(CancellationToken _cancellationToken)
         {
             var employees = await employeeService.GetAllAvailableAsync(_cancellationToken, CurrentUserId);

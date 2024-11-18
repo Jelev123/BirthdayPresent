@@ -4,78 +4,45 @@
     using BirthdayPresent.Core.Enums;
     using BirthdayPresent.Core.Interfaces.Vote;
     using BirthdayPresent.Core.Services.Base;
-    using BirthdayPresent.Core.ViewModels.Employee;
     using BirthdayPresent.Core.ViewModels.Vote;
-    using BirthdayPresent.Core.ViewModels.VoteSession;
     using BirthdayPresent.Infrastructure.Data;
     using BirthdayPresent.Infrastructure.Data.Models;
     using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     public class VoteService : BaseService<Vote>, IVoteService
     {
-        public VoteService(ApplicationDbContext dbContext) : base(dbContext)
-        {
-
-        }
+        public VoteService(ApplicationDbContext dbContext) : base(dbContext) { }
 
         public async Task<int> VoteForGiftAsync(int voteSessionId, int giftId, int voterId, CancellationToken cancellationToken)
         {
             var voteSession = await _data.VoteSessions
-               .Where(vs => vs.Id == voteSessionId)
-               .Select(vs => new VoteSessionViewModel
-               {
-                   Id = voteSessionId,
-                   CreatedAt = vs.CreatedAt,
-                   BirthdayEmployeeId = vs.BirthdayEmployeeId,
-                   BirthdayEmployeeName = vs.BirthdayEmployee.FirstName + " " + vs.BirthdayEmployee.LastName,
-                   StatusId = vs.StatusId,
-               })
-               .FirstOrDefaultAsync(cancellationToken);
+                .Include(vs => vs.BirthdayEmployee)
+                .Where(vs => vs.Id == voteSessionId)
+                .Select(vs => new { vs.Id, vs.StatusId, vs.BirthdayEmployeeId })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (voteSession.StatusId == (int)VoteSessionStatusEnum.Closed)
-            {
-                throw new Exception(ErrorMessages.VoteSessionIsClosed);
-            }
+            if (voteSession == null || voteSession.StatusId == (int)VoteSessionStatusEnum.Closed)
+                throw new InvalidOperationException(ErrorMessages.VoteSessionIsClosed);
 
-            ValidateVoteSessions(voteSession);
-            ValidateBirthdayEmployee(voteSession, voterId);
-
-            var voter = await _data.Users
-                .Select(u => new EmployeeViewModel 
-                {
-                    Id = u.Id,
-                    EmployeeName = u.FirstName + " " + u.LastName,
-                })
-                .FirstOrDefaultAsync(u => u.Id == voterId, cancellationToken);
-
-            if (voter == null)
-            {
-                throw new Exception(ErrorMessages.VoterNotFound);
-            }
+            if (voteSession.BirthdayEmployeeId == voterId)
+                throw new InvalidOperationException(ErrorMessages.BirthdayEmployeeRestrict);
 
             var existingVote = await _data.Votes
-                .Select(v => new VoteViewModel 
-                {
-                    Id = v.Id,
-                    GiftId = v.GiftId,
-                    VoterId = v.VoterId,
-                    VoteSessionId = v.VoteSessionId,
-                })
-                .FirstOrDefaultAsync(v => v.VoteSessionId == voteSessionId && v.VoterId == voterId, cancellationToken);
+                .AnyAsync(v => v.VoteSessionId == voteSessionId && v.VoterId == voterId, cancellationToken);
 
-            if (existingVote != null)
-            {
-                throw new Exception(ErrorMessages.AlreadyVoted);
-            }
+            if (existingVote)
+                throw new InvalidOperationException(ErrorMessages.AlreadyVoted);
 
-            var gift = await _data.Gifts.FirstOrDefaultAsync(g => g.Id == giftId && g.IsActive, cancellationToken);
+            var gift = await _data.Gifts
+                .Where(g => g.Id == giftId && g.IsActive)
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (gift == null)
-            {
-                throw new Exception(ErrorMessages.InvalidGift);
-            }
+                throw new KeyNotFoundException(ErrorMessages.InvalidGift);
 
             var vote = new Vote
             {
@@ -88,85 +55,60 @@
             await _data.Votes.AddAsync(vote, cancellationToken);
             await _data.SaveChangesAsync(cancellationToken);
 
-            var updatedVoteCount = await _data.Votes
+            return await _data.Votes
                 .CountAsync(v => v.VoteSessionId == voteSessionId && v.GiftId == giftId, cancellationToken);
-
-            return updatedVoteCount;
         }
 
         public async Task<VoteResultViewModel> GetVoteResultsAsync(int voteSessionId, int currentUserId, CancellationToken cancellationToken)
         {
             var voteSession = await _data.VoteSessions
+                .Include(vs => vs.BirthdayEmployee)
+                .Include(vs => vs.Votes)
+                .ThenInclude(v => v.Gift)
                 .Where(vs => vs.Id == voteSessionId)
-                .Select(vs => new VoteSessionViewModel
-                {
-                    Id = vs.Id,
-                    StartDate = vs.StartDate,
-                    EndDate = vs.EndDate,
-                    BirthdayEmployeeName = vs.BirthdayEmployee.FirstName + " " + vs.BirthdayEmployee.LastName,
-                    BirthdayEmployeeId = vs.BirthdayEmployeeId,
-                    Votes = vs.Votes.Select(v => new VoteViewModel
-                    {
-                        Id = v.Id,
-                        VoterId = v.VoterId,
-                        GiftId = v.GiftId,
-                        GiftName = v.Gift.Name
-                    }).ToList()
-                })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            ValidateVoteSessions(voteSession);
-            ValidateBirthdayEmployee(voteSession, currentUserId);
+            if (voteSession == null)
+                throw new KeyNotFoundException(ErrorMessages.VoteSessionNotFound);
+
+            if (voteSession.BirthdayEmployeeId == currentUserId)
+                throw new InvalidOperationException(ErrorMessages.BirthdayEmployeeRestrict);
 
             var allEmployees = await _data.Users
                 .Where(u => !u.Deleted && u.Id != voteSession.BirthdayEmployeeId)
                 .ToListAsync(cancellationToken);
 
-            var voters = voteSession.Votes.Select(v => v.VoterId).ToList();
+            var employeeLookup = allEmployees.ToDictionary(e => e.Id, e => e.FirstName + " " + e.LastName);
 
-            var nonVoters = allEmployees.Where(u => !voters.Contains(u.Id)).ToList();
+            var voters = voteSession.Votes.Select(v => v.VoterId).ToList();
+            var nonVoters = allEmployees
+                .Where(u => !voters.Contains(u.Id))
+                .Select(nv => nv.FirstName + " " + nv.LastName)
+                .ToList();
 
             var resultViewModel = new VoteResultViewModel
             {
                 VoteSessionId = voteSession.Id,
-                BirthdayEmployeeName = voteSession.BirthdayEmployeeName,
+                BirthdayEmployeeName = voteSession.BirthdayEmployee.FirstName + " " + voteSession.BirthdayEmployee.LastName,
                 FinishDate = voteSession.EndDate,
                 Voters = voteSession.Votes
                     .Select(v => new VoterViewModel
                     {
-                        VoterName = allEmployees.FirstOrDefault(e => e.Id == v.VoterId)?.FirstName + " " + allEmployees.FirstOrDefault(e => e.Id == v.VoterId)?.LastName,
-                        VotedGift = v.GiftName
+                        VoterName = employeeLookup[v.VoterId],
+                        VotedGift = v.Gift.Name
                     }).ToList(),
-                NonVoters = nonVoters.Select(nv => nv.FirstName + " " + nv.LastName).ToList(),
+                NonVoters = nonVoters,
                 Gifts = voteSession.Votes
-                    .GroupBy(v => v.GiftName)
+                    .GroupBy(v => v.Gift.Name)
                     .Select(g => new GiftResultViewModel
                     {
                         GiftName = g.Key,
                         VoteCount = g.Count(),
-                        Voters = g.Select(v => allEmployees.FirstOrDefault(
-                            e => e.Id == v.VoterId)?.FirstName + " " + allEmployees.FirstOrDefault(
-                            e => e.Id == v.VoterId)?.LastName).ToList()
+                        Voters = g.Select(v => employeeLookup[v.VoterId]).ToList()
                     }).ToList()
             };
 
             return resultViewModel;
-        }
-
-        private void ValidateVoteSessions(object voteSession)
-        {
-            if (voteSession == null)
-            {
-                throw new Exception(ErrorMessages.VoteSessionNotFound);
-            }
-        }
-
-        private void ValidateBirthdayEmployee(VoteSessionViewModel voteSession, int currentUserId)
-        {
-            if (voteSession.BirthdayEmployeeId == currentUserId)
-            {
-                throw new Exception(ErrorMessages.BirthdayEmployeeRestrict);
-            }
         }
     }
 }

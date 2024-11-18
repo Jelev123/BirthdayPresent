@@ -7,24 +7,19 @@
     using BirthdayPresent.Infrastructure.Data.Models;
     using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class EmployeeService : BaseService<Employee>, IEmployeeService
     {
-        public EmployeeService(ApplicationDbContext dbContext) : base(dbContext)
-        {
-        }
+        public EmployeeService(ApplicationDbContext dbContext) : base(dbContext) { }
 
         public async Task<IEnumerable<AllEmployeesViewModel>> GetAllAvailableAsync(CancellationToken cancellationToken, int currentUserId)
         {
             var currentDate = DateTime.UtcNow.Date;
             var currentYear = currentDate.Year;
 
-            var activeSessions = await _data.VoteSessions
-                .Where(vs => vs.VotingYear == currentYear)
-                .ToListAsync(cancellationToken);
-
-            var activeBirthdayEmployeeIds = activeSessions.Select(vs => vs.BirthdayEmployeeId).ToList();
+            var activeBirthdayEmployeeIds = await GetActiveBirthdayEmployeeIdsForYearAsync(currentYear, cancellationToken);
 
             var employees = await _data.Users
                 .Where(u => !u.Deleted && u.Id != currentUserId)
@@ -34,7 +29,8 @@
                     FirstName = u.FirstName,
                     LastName = u.LastName,
                     DateOfBirth = u.DateOfBirth,
-                    HasBirthday = new DateTime(currentYear, u.DateOfBirth.Month, u.DateOfBirth.Day) >= currentDate,
+                    HasBirthday = u.DateOfBirth.Month > currentDate.Month ||
+                                  (u.DateOfBirth.Month == currentDate.Month && u.DateOfBirth.Day >= currentDate.Day),
                     HasActiveSessionForYear = activeBirthdayEmployeeIds.Contains(u.Id)
                 })
                 .ToListAsync(cancellationToken);
@@ -44,12 +40,20 @@
 
         public async Task<int?> GetUserVoteAsync(int voteSessionId, int userId, CancellationToken cancellationToken)
         {
-            var userVote = await _data.Votes
+            return await _data.Votes
                 .Where(v => v.VoteSessionId == voteSessionId && v.VoterId == userId)
                 .Select(v => v.GiftId)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
 
-            return userVote;
+        private async Task<HashSet<int>> GetActiveBirthdayEmployeeIdsForYearAsync(int year, CancellationToken cancellationToken)
+        {
+            var activeEmployeeIds = await _data.VoteSessions
+                .Where(vs => vs.VotingYear == year)
+                .Select(vs => vs.BirthdayEmployeeId)
+                .ToListAsync(cancellationToken);
+
+            return activeEmployeeIds.ToHashSet();
         }
     }
 }

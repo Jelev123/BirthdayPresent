@@ -6,6 +6,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    [Authorize]
     public class VoteController : BaseController
     {
         private readonly IVoteService voteService;
@@ -14,8 +15,7 @@
         {
             this.voteService = voteService;
         }
-
-        [Authorize]
+   
         public async Task<IActionResult> SubmitVote(int voteSessionId, int giftId)
         {
             try
@@ -30,7 +30,6 @@
             }
         }
 
-        [Authorize]
         public async Task<IActionResult> VoteResults(int voteSessionId)
         {
             try
@@ -40,7 +39,7 @@
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
     }

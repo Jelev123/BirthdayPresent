@@ -18,7 +18,8 @@
 
         public async Task<IEnumerable<AllGiftsViewModel>> GetAllGiftsAsync(CancellationToken cancellationToken)
         {
-            return await _data.Gifts.Select(x => new AllGiftsViewModel
+            return await _data.Gifts.AsNoTracking()
+                .Select(x => new AllGiftsViewModel
             {
                 Id = x.Id,
                 Name = x.Name,

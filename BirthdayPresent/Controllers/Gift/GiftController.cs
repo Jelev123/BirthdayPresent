@@ -4,6 +4,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    [Authorize]
     public class GiftController : Controller
     {
         private readonly IGiftService giftService;
@@ -12,8 +13,7 @@
         {
             this.giftService = giftService;
         }
-
-        [Authorize]
+   
         public async Task<IActionResult> AllGifts(CancellationToken cancellationToken)
         {
             return View(await giftService.GetAllGiftsAsync(cancellationToken));
